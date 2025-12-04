@@ -233,6 +233,10 @@ context ast_domain begin
     lemma wf_duration_const'_correct: "wf_duration_const' STG d = wf_duration_const ty_ent d"
       by (cases d) (auto simp: is_of_type'_correct[abs_def] split:option.split)
 
+    definition "wf_duration_consts' stg = list_all (wf_duration_const' stg)" 
+  
+    lemma wf_duration_consts'_correct: "wf_duration_consts' STG ds = wf_duration_consts ty_ent ds"
+      unfolding wf_duration_consts'_def wf_duration_consts_def using wf_duration_const'_correct by presburger
   end \<comment> \<open>Context fixing \<open>ty_ent\<close>\<close>
 
   fun wf_action_schema' :: "_ \<Rightarrow> _ \<Rightarrow> ast_action_schema \<Rightarrow> bool" where
@@ -250,11 +254,11 @@ context ast_domain begin
         distinct (map fst params)
       \<and> (\<forall>(t,c) \<in> set cond. wf_fmla' tyv stg c)
       \<and> (\<forall>(t,e) \<in> set eff. wf_effect' tyv stg e \<and> t \<noteq> Over_All)
-      \<and> wf_duration_const' tyv stg d)"
+      \<and> wf_duration_consts' tyv stg d)"
 
   lemma wf_action_schema'_correct: "wf_action_schema' STG mp_constT s = wf_action_schema s"
     by (cases s) 
-       (auto simp: wf_fmla'_correct wf_effect'_correct wf_duration_const'_correct Let_def 
+       (auto simp: wf_fmla'_correct wf_effect'_correct wf_duration_consts'_correct Let_def 
              split: option.splits)
 
   definition wf_domain' :: "_ \<Rightarrow> _ \<Rightarrow> bool" where
@@ -400,7 +404,7 @@ context ast_problem begin
   lemma wf_effect_inst_weak:
     fixes n params pre eff
     defines "a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a \<equiv> Simple_Action_Schema n params pre eff"  
-    assumes "a = instantiate_action_schema a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a args" 
+    assumes "a = instantiate_action_schema a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a args ta" 
         and "action_params_match a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a args" 
         and "wf_action_schema a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a"
     shows "wf_effect_inst (effect a)"
@@ -609,7 +613,7 @@ context ast_problem begin
   fun simplify_action :: "time list \<Rightarrow> (time \<times> plan_action) \<Rightarrow> (time \<times> ground_action) list" where
     "simplify_action htps (t,Simple_Plan_Action n args) = (
       let a = the (resolve_action_schema n) in
-        [(t, instantiate_action_schema a args)]
+        [(t, instantiate_action_schema a args At_Start)]
       )"
   | "simplify_action htps (t,Durative_Plan_Action n args d) = (
       let a = the (resolve_action_schema n) in
@@ -807,9 +811,10 @@ context ast_problem begin
     shows "inst_of_plan_action \<pi>s (t\<^sub>\<pi>,\<pi>) (t\<^sub>a,a)"
     using assms 
   proof (cases \<pi>)
-    case (Simple_Plan_Action n args)
-    then show ?thesis 
-      using \<open>(t\<^sub>a,a) \<in> set (simplify_action (htps_exec \<pi>s) (t\<^sub>\<pi>,\<pi>))\<close> by auto
+    case 1: (Simple_Plan_Action n args)
+    show ?thesis 
+      using \<open>(t\<^sub>a,a) \<in> set (simplify_action (htps_exec \<pi>s) (t\<^sub>\<pi>,\<pi>))\<close> 
+      unfolding inst_of_plan_action.simps 1 simplify_action.simps Let_def by simp
   next
     case (Durative_Plan_Action n args d)
     let ?htps="htps_exec \<pi>s"
@@ -878,6 +883,15 @@ context ast_problem begin
     shows "\<forall>(t\<^sub>j,A\<^sub>j) \<in> set (insort_happ (t\<^sub>i,A\<^sub>i) hs). A\<^sub>j \<noteq> []"
     using assms by (induction "(t\<^sub>i,A\<^sub>i)" hs rule: insort_happ.induct) auto
 
+  (* Generalisation of following lemmas *)
+  lemma insort_happ_action_subset_relaxed:
+    assumes "(\<exists>H''. (t, H'') \<in> set hs \<and> set H \<subseteq> set H'') \<or> set H \<subseteq> set H'"
+    shows "\<exists>A. (t, A) \<in> set (insort_happ (t, H') hs) \<and> set H \<subseteq> set A"
+    using assms
+    apply (induction "(t, H')" hs rule: insort_happ.induct)
+     apply simp
+    by force
+
   lemma insort_happ_action_subset: 
     "\<forall>(t\<^sub>a,A) \<in> set hs \<union> {h}. \<exists>A'. (t\<^sub>a,A') \<in> set (insort_happ h hs) \<and> set A \<subseteq> set A'"
     by (induction h hs rule: insort_happ.induct) auto+
@@ -887,6 +901,8 @@ context ast_problem begin
     using insort_happ_action_subset
     by (induction "(t\<^sub>2,A\<^sub>2)" hs rule: insort_happ.induct) auto
   (* TODO: lemma needed for proof of 'simp_plan_corr_dur_acts_end_aux'; try to proof without it *)
+
+  
 
   lemma insort_happ_sorted: "sorted (map fst hs) \<Longrightarrow> sorted (map fst (insort_happ h hs))"
     by (metis insort_happ_insort_insert sorted_insort_insert)
@@ -1114,7 +1130,7 @@ context ast_problem begin
   lemma simp_plan_corr_simp_acts: 
     assumes "hs = simplify_plan htps \<pi>s" 
         and "(t\<^sub>\<pi>,\<pi>) \<in> simple_acts \<pi>s"
-    shows "\<exists>A. (t\<^sub>\<pi>,A) \<in> set hs \<and> the (res_inst \<pi>) \<in> set A"
+    shows "\<exists>A. (t\<^sub>\<pi>,A) \<in> set hs \<and> the (res_inst \<pi> At_Start) \<in> set A"
     using assms
   proof -
     obtain \<pi>s\<^sub>1 \<pi>s\<^sub>2 where "\<pi>s = \<pi>s\<^sub>1 @ ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)"
@@ -1126,23 +1142,22 @@ context ast_problem begin
     have "(t\<^sub>\<pi>, \<pi>) \<in> simple_acts ((t\<^sub>\<pi>, \<pi>) # \<pi>s\<^sub>2)"
       using assms \<open>\<pi>s = \<pi>s\<^sub>1 @ ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close>
       unfolding simple_acts_def is_act_simple_def by (auto split: plan_action.splits)
-    have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs' \<and> the (res_inst \<pi>) \<in> set as"
-      using \<open>hs' = simplify_plan htps ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close> 
-            \<open>(t\<^sub>\<pi>,\<pi>) = hd ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close> 
+    have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs' \<and> set [the (res_inst \<pi> At_Start)] \<subseteq> set as"
+      using \<open>(t\<^sub>\<pi>,\<pi>) = hd ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close> 
             \<open>(t\<^sub>\<pi>, \<pi>) \<in> simple_acts ((t\<^sub>\<pi>, \<pi>) # \<pi>s\<^sub>2)\<close>
-            insort_happ_action_subset
-      unfolding simple_acts_def is_act_simple_def
-      apply (induction \<pi>s)
-      apply (auto split: plan_action.splits)
-      apply (meson list.set_intros(1) subsetD)
-      done
+      unfolding \<open>hs' = simplify_plan htps ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close> simple_acts_def is_act_simple_def simplify_plan.simps
+      apply (induction \<pi>)
+      unfolding simplify_action.simps Let_def list.map prod.case
+      unfolding insort_mult_happs.simps comp_def list.sel set_filter res_inst.simps option.sel
+      using insort_happ_action_subset_relaxed by fastforce+
+    hence "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs' \<and> the (res_inst \<pi> At_Start) \<in> set as" by auto
     have "hs' \<subseteq>\<^sub>h\<^sub>s hs"
       using assms simplify_plan_happs_subset_app 
             \<open>hs' = simplify_plan htps ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close> 
             \<open>\<pi>s = \<pi>s\<^sub>1 @ ((t\<^sub>\<pi>,\<pi>)#\<pi>s\<^sub>2)\<close>
       by blast
     show ?thesis
-      using \<open>\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs' \<and> the (res_inst \<pi>) \<in> set as\<close>
+      using \<open>\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs' \<and> the (res_inst \<pi> At_Start) \<in> set as\<close>
             \<open>hs' \<subseteq>\<^sub>h\<^sub>s hs\<close>
       unfolding happ_seq_subset_def happ_seq_member_def by blast
   qed
@@ -1495,9 +1510,15 @@ context ast_problem begin
           | EQ \<Rightarrow> d = d'
           | GEQ \<Rightarrow> d \<ge> d'))"
 
-  lemma (in wf_ast_problem) duration_matches'_correct: 
+  lemma (in wf_ast_problem) duration_matches'_correct:    
     "duration_matches' mp_Fevl d dc params args \<longleftrightarrow> duration_matches d dc params args"
     by (cases dc) (auto split: option.splits)
+  
+  definition "durations_match' mp_fe d xs params args = list_all (\<lambda>x. duration_matches' mp_fe d x params args) xs"
+
+  lemma (in wf_ast_problem) durations_match'_correct:    
+    "durations_match' mp_Fevl d dcs params args \<longleftrightarrow> durations_match d dcs params args"
+    unfolding durations_match_def durations_match'_def using duration_matches'_correct by simp
 
   fun consec_htps_in_interval_exec :: "time list \<Rightarrow> time \<Rightarrow> time \<Rightarrow> (time \<times> time) list" where
     "consec_htps_in_interval_exec (t#t'#ts) t\<^sub>i t\<^sub>j = 
@@ -1583,7 +1604,7 @@ context ast_problem begin
       a \<leftarrow> resolve_action_schemaE n;
       check (case a of Simple_Action_Schema _ _ _ _ \<Rightarrow> True | _ \<Rightarrow> False) (ERRS ''Invalid Plan action type'');
       check (action_params_match2 stg mp a args) (ERRS ''Parameter mismatch'');
-      Error_Monad.return [(t\<^sub>\<pi>,instantiate_action_schema a args)]
+      Error_Monad.return [(t\<^sub>\<pi>,instantiate_action_schema a args At_Start)]
     }"
   | "simplify_actionE stg mp mp_fe htps (t\<^sub>\<pi>,Durative_Plan_Action n args d) = do {
       check (t\<^sub>\<pi> \<ge> 0) (ERRS ''Invalid starting time point'');
@@ -1591,7 +1612,7 @@ context ast_problem begin
       check (case a of Durative_Action_Schema _ _ _ _ _ \<Rightarrow> True | _ \<Rightarrow> False) (ERRS ''Invalid Plan action type'');
       check (action_params_match2 stg mp a args) (ERRS ''Parameter mismatch'');
       check (d \<ge> 0) (ERRS ''Invalid duration (negative)'');
-      check (duration_matches' mp_fe d (duration_constraint a) (parameters a) args) (ERRS ''Duration constraint not satisfied'');
+      check (durations_match' mp_fe d (duration_constraint a) (parameters a) args) (ERRS ''Duration constraint not satisfied'');
       let a\<^sub>i\<^sub>n\<^sub>v = inst_snap_action a args Over_All in
         Error_Monad.return (
           (t\<^sub>\<pi>,inst_snap_action a args At_Start) # 
@@ -1618,7 +1639,7 @@ context ast_problem begin
     then show "wf_plan_action \<pi> \<and> t\<^sub>\<pi> \<ge> 0 \<and> simplify_action htps (t\<^sub>\<pi>,\<pi>) = as"
     proof (cases \<pi>)
       case case_\<pi>: (Simple_Plan_Action n args)
-      obtain a where a_obt: "a = instantiate_action_schema a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a args \<and> as = [(t\<^sub>\<pi>,a)]"
+      obtain a where a_obt: "a = instantiate_action_schema a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a args At_Start\<and> as = [(t\<^sub>\<pi>,a)]"
         using assm1 a\<^sub>s\<^sub>c\<^sub>h\<^sub>e\<^sub>m\<^sub>a_obt case_\<pi> by (auto simp: return_iff)
       have wf_p_act: "wf_plan_action \<pi> \<and> t\<^sub>\<pi> \<ge> 0"
         using assm1 wf_act_schema_\<pi> case_\<pi> action_params_match_def wf_effect_inst_weak
@@ -1633,7 +1654,7 @@ context ast_problem begin
       show ?thesis 
         using assm1 wf_act_schema_\<pi> case_\<pi> action_params_match_def 
               wf_effect_durative_inst_weak 
-              duration_matches'_correct 
+              durations_match'_correct 
               place_inv_snap_acts_correct[OF \<open>strict_sorted htps\<close>]
         apply (auto simp: return_iff split: ast_action_schema.splits)
         apply (auto simp: return_iff split: option.splits)
@@ -1646,7 +1667,7 @@ context ast_problem begin
       using assm2 by (cases \<pi>) (auto split: option.splits)
     then show "simplify_actionE STG mp_objT mp_Fevl htps (t\<^sub>\<pi>,\<pi>) = Inr as"
       using assm2 action_params_match_def 
-            duration_matches'_correct 
+            durations_match'_correct 
             place_inv_snap_acts_correct[OF \<open>strict_sorted htps\<close>]
       by (cases \<pi>) (auto simp: return_iff split: option.splits ast_action_schema.splits)
   qed
@@ -2304,7 +2325,7 @@ lemma check_all_list_return_iff[return_iff]: "check_all_list P l msg msgf = Inr 
   unfolding check_all_list_def by (induction l) (auto)
 
 definition "check_wf_types D \<equiv> do {
-  check_all_list (\<lambda>(_,t). t=''object'' \<or> t\<in>fst`set (types D)) (types D) ''Undeclared supertype'' (shows o snd)
+  check_all_list (\<lambda>(_,t). t=(STR ''object'') \<or> t\<in>fst`set (types D)) (types D) ''Undeclared supertype'' (shows o snd)
 }"
 
 lemma check_wf_types_return_iff[return_iff]: "check_wf_types D = Inr () \<longleftrightarrow> ast_domain.wf_types D"
@@ -2396,6 +2417,7 @@ lemmas wf_domain_code =
   ast_domain.wf_pred_atom'.simps
   ast_domain.wf_fmla'.simps
   ast_domain.wf_fmla_atom1'.simps
+  ast_domain.wf_duration_consts'_def
   ast_domain.wf_effect'.simps
   ast_domain.wf_action_schema'.simps
   ast_domain.wf_domain'_def
@@ -2412,6 +2434,7 @@ lemmas wf_domain_code =
 declare wf_domain_code[code]
 
 lemmas wf_problem_code =
+  ast_problem.durations_match'_def
   ast_problem.wf_problem'_def
   ast_problem.wf_fact'_def
   ast_problem.is_obj_of_type_alt

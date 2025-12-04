@@ -140,7 +140,7 @@ context ast_problem begin
   induced happening sequence.\<close>
   definition acts_of_plan_at :: "time \<Rightarrow> plan \<Rightarrow> ground_action set" where
     "acts_of_plan_at t\<^sub>i \<pi>s = 
-      {a\<^sub>\<pi>. \<exists>\<pi>. (t\<^sub>i,\<pi>) \<in> simple_acts \<pi>s \<and> Some a\<^sub>\<pi> = res_inst \<pi>} 
+      {a\<^sub>\<pi>. \<exists>\<pi>. (t\<^sub>i,\<pi>) \<in> simple_acts \<pi>s \<and> Some a\<^sub>\<pi> = res_inst \<pi> At_Start} 
     \<union> {a\<^sub>s\<^sub>t\<^sub>a\<^sub>r\<^sub>t. \<exists>\<pi>. (t\<^sub>i,\<pi>) \<in> durative_acts \<pi>s \<and> Some a\<^sub>s\<^sub>t\<^sub>a\<^sub>r\<^sub>t = res_inst_snap_action \<pi> At_Start} 
     \<union> {a\<^sub>e\<^sub>n\<^sub>d. \<exists>t' \<pi>. (t',\<pi>) \<in> durative_acts \<pi>s \<and> t\<^sub>i = t' + duration \<pi> \<and> Some a\<^sub>e\<^sub>n\<^sub>d = res_inst_snap_action \<pi> At_End}" 
   (* TODO: maybe convert to multiset *)
@@ -190,6 +190,7 @@ context ast_problem begin
   lemma valid_state_seq_app_iff:
     "valid_state_seq M\<^sub>i (ts\<^sub>1@ts\<^sub>2) \<pi>s M\<^sub>k 
       \<longleftrightarrow> (\<exists>M\<^sub>j. valid_state_seq M\<^sub>i ts\<^sub>1 \<pi>s M\<^sub>j \<and> valid_state_seq M\<^sub>j ts\<^sub>2 \<pi>s M\<^sub>k)"
+    
     by (induction ts\<^sub>1 arbitrary: ts\<^sub>2 M\<^sub>i M\<^sub>k) (auto simp: Let_def)
 
   lemma valid_state_seq_state_unique:
@@ -213,7 +214,7 @@ context ast_problem begin
         using assms by (auto simp: ind_happ_seq_def)
       then obtain t\<^sub>\<pi> \<pi> where "(t\<^sub>\<pi>,\<pi>) \<in> set \<pi>s" and "inst_of_plan_action \<pi>s (t\<^sub>\<pi>,\<pi>) (t,a)"
         by auto
-      let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t"
+      let ?case1="res_inst \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t"
       let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t"
       let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + duration \<pi> = t"
       let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -246,7 +247,7 @@ context ast_problem begin
     show "set A \<supseteq> acts_of_plan_at t \<pi>s"
     proof
       fix a
-      let ?case1="a \<in> {a\<^sub>\<pi>. \<exists>\<pi>. (t,\<pi>) \<in> simple_acts \<pi>s \<and> Some a\<^sub>\<pi> = res_inst \<pi>}"
+      let ?case1="a \<in> {a\<^sub>\<pi>. \<exists>\<pi>. (t,\<pi>) \<in> simple_acts \<pi>s \<and> Some a\<^sub>\<pi> = res_inst \<pi> At_Start}"
       let ?case2="a \<in> {a\<^sub>s\<^sub>t\<^sub>a\<^sub>r\<^sub>t. \<exists>\<pi>. (t,\<pi>) \<in> durative_acts \<pi>s \<and> Some a\<^sub>s\<^sub>t\<^sub>a\<^sub>r\<^sub>t = res_inst_snap_action \<pi> At_Start}"
       let ?case3="a \<in> {a\<^sub>e\<^sub>n\<^sub>d. \<exists>t' \<pi>. (t',\<pi>) \<in> durative_acts \<pi>s \<and> t = t' + duration \<pi> \<and> Some a\<^sub>e\<^sub>n\<^sub>d = res_inst_snap_action \<pi> At_End}"
       assume "a \<in> acts_of_plan_at t \<pi>s"
@@ -255,7 +256,7 @@ context ast_problem begin
       then show "a \<in> set A"
         proof (elim disjE)
           assume ?case1
-          then obtain \<pi> where "(t,\<pi>) \<in> simple_acts \<pi>s" and "the (res_inst \<pi>) = a"
+          then obtain \<pi> where "(t,\<pi>) \<in> simple_acts \<pi>s" and "the (res_inst \<pi> At_Start) = a"
             by auto (metis option.sel)
           then have "\<exists>as. (t, as) \<in> set hs \<and> a \<in> set as"
             using assms unfolding ind_happ_seq_def by auto
@@ -324,13 +325,9 @@ begin
     then have "is_htp \<pi>s t\<^sub>\<pi>"
       unfolding is_htp_def by auto
     have "\<not>is_htp \<pi>s t"
-
-      thm sorted_take[OF sorted_drop]
-      thm wf_ast_problem.strict_sorted_drop_leq_take_le'
-
       using assms strict_sorted_drop_leq_take_le'[OF \<open>strict_sorted (map fst hs)\<close>] 
       unfolding consec_htps_def by auto
-    let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t"
+    let ?case1="res_inst \<pi> At_Start= Some a \<and> t\<^sub>\<pi> = t"
     let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t"
     let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + duration \<pi> = t"
     let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -473,7 +470,7 @@ begin
       by auto
     then have "is_htp \<pi>s t\<^sub>\<pi>"
       unfolding is_htp_def by auto
-    let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
+    let ?case1="res_inst \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + (duration \<pi>) = t\<^sub>a"
     let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -578,7 +575,7 @@ begin
     assumes "wf_plan \<pi>s"
         and "consec_htps \<pi>s t\<^sub>i t\<^sub>j"
         and "ind_happ_seq \<pi>s hs"
-    shows "valid_happ_seq M (dropWhile (leq t\<^sub>i) (takeWhile (le t\<^sub>j) hs)) M 
+    shows "valid_happ_seq M (dropWhile (leq t\<^sub>i) (takeWhile (le t\<^sub>j) hs)) M
             \<longleftrightarrow> (\<forall>i \<in> invs_of_plan_at t\<^sub>j \<pi>s. M \<^sup>c\<TTurnstile>\<^sub>= i)"
   proof
     let ?hs'="dropWhile (leq t\<^sub>i) (takeWhile (le t\<^sub>j) hs)"
@@ -1022,7 +1019,7 @@ begin
       unfolding ind_happ_seq_def by auto
     then obtain t\<^sub>\<pi> \<pi> where "(t\<^sub>\<pi>,\<pi>) \<in> set \<pi>s" and "inst_of_plan_action \<pi>s (t\<^sub>\<pi>,\<pi>) (t\<^sub>a,a)"
       by auto
-    let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
+    let ?case1="res_inst \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + (duration \<pi>) = t\<^sub>a"
     let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -1034,14 +1031,14 @@ begin
       assume ?case1
       then have "(t\<^sub>\<pi>,\<pi>) \<in> simple_acts \<pi>s"
         unfolding simple_acts_def is_act_simple_def using \<open>(t\<^sub>\<pi>,\<pi>) \<in> set \<pi>s\<close> by (cases \<pi>) auto
-      then have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs\<^sub>2 \<and> the (res_inst \<pi>) \<in> set as"
+      then have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs\<^sub>2 \<and> the (res_inst \<pi> At_Start) \<in> set as"
         using \<open>ind_happ_seq \<pi>s hs\<^sub>2\<close> unfolding ind_happ_seq_def by auto
-      then obtain A' where "(t\<^sub>\<pi>,A') \<in> set hs\<^sub>2" and "the (res_inst \<pi>) \<in> set A'" 
+      then obtain A' where "(t\<^sub>\<pi>,A') \<in> set hs\<^sub>2" and "the (res_inst \<pi> At_Start) \<in> set A'" 
         by auto
       then have "(t\<^sub>a,A') \<in> set hs\<^sub>2"
         using \<open>?case1\<close> by auto
       show ?thesis
-        using \<open>?case1\<close> \<open>t\<^sub>i < t\<^sub>a \<and> t\<^sub>a < t\<^sub>j\<close> \<open>the (res_inst \<pi>) \<in> set A'\<close>
+        using \<open>?case1\<close> \<open>t\<^sub>i < t\<^sub>a \<and> t\<^sub>a < t\<^sub>j\<close> \<open>the (res_inst \<pi> At_Start) \<in> set A'\<close>
               strict_sorted_drop_leq_take_le[OF \<open>strict_sorted (map fst hs\<^sub>2)\<close> \<open>(t\<^sub>a,A') \<in> set hs\<^sub>2\<close>]
         by auto   
     next
@@ -1205,7 +1202,7 @@ begin
       unfolding ind_happ_seq_def by auto
     then obtain t\<^sub>\<pi> \<pi> where "(t\<^sub>\<pi>,\<pi>) \<in> set \<pi>s" and "inst_of_plan_action \<pi>s (t\<^sub>\<pi>,\<pi>) (t\<^sub>a,a)"
       by auto
-    let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
+    let ?case1="res_inst \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + (duration \<pi>) = t\<^sub>a"
     let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -1217,14 +1214,14 @@ begin
         assume ?case1
         then have "(t\<^sub>\<pi>,\<pi>) \<in> simple_acts \<pi>s"
           unfolding simple_acts_def is_act_simple_def using \<open>(t\<^sub>\<pi>,\<pi>) \<in> set \<pi>s\<close> by (cases \<pi>) auto
-        then have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs\<^sub>2 \<and> the (res_inst \<pi>) \<in> set as"
+        then have "\<exists>as. (t\<^sub>\<pi>,as) \<in> set hs\<^sub>2 \<and> the (res_inst \<pi> At_Start) \<in> set as"
           using \<open>ind_happ_seq \<pi>s hs\<^sub>2\<close> unfolding ind_happ_seq_def by auto
-        then obtain A' where "(t\<^sub>\<pi>,A') \<in> set hs\<^sub>2" and "the (res_inst \<pi>) \<in> set A'" 
+        then obtain A' where "(t\<^sub>\<pi>,A') \<in> set hs\<^sub>2" and "the (res_inst \<pi> At_Start) \<in> set A'" 
           by auto
         then have "(t\<^sub>a,A') \<in> set hs\<^sub>2"
           using \<open>?case1\<close> by auto
         show ?thesis
-          using \<open>t\<^sub>i = t\<^sub>a\<close> \<open>?case1\<close> \<open>the (res_inst \<pi>) \<in> set A'\<close>
+          using \<open>t\<^sub>i = t\<^sub>a\<close> \<open>?case1\<close> \<open>the (res_inst \<pi> At_Start) \<in> set A'\<close>
               strict_sorted_drop_le_take_leq[OF \<open>strict_sorted (map fst hs\<^sub>2)\<close> \<open>(t\<^sub>a,A') \<in> set hs\<^sub>2\<close>]
           by auto
       next
@@ -1441,7 +1438,7 @@ begin
         and "inst_of_plan_action \<pi>s (t\<^sub>\<pi>,\<pi>) (t\<^sub>a,a)" 
     shows "(\<exists>t\<^sub>j. is_htp \<pi>s t\<^sub>j \<and> t\<^sub>j \<le> t\<^sub>a) \<and> (\<exists>t\<^sub>j. is_htp \<pi>s t\<^sub>j \<and> t\<^sub>a \<le> t\<^sub>j)"
   proof -
-    let ?case1="res_inst \<pi> = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
+    let ?case1="res_inst \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case2="res_inst_snap_action \<pi> At_Start = Some a \<and> t\<^sub>\<pi> = t\<^sub>a"
     let ?case3="res_inst_snap_action \<pi> At_End = Some a \<and> t\<^sub>\<pi> + (duration \<pi>) = t\<^sub>a"
     let ?case4="res_inst_snap_action \<pi> Over_All = Some a \<and> 
@@ -1734,7 +1731,7 @@ begin
     shows "valid_plan2 \<pi>s \<longleftrightarrow> valid_plan \<pi>s"
     unfolding valid_plan_def valid_plan2_def 
     using valid_plan_from2_iff[OF assms] by blast
-
+  find_theorems "acts_of_plan_at"
 end \<comment> \<open>Context of \<open>ast_problem\<close>\<close>
 
 end \<comment> \<open>Theory\<close>
