@@ -7,12 +7,12 @@
 \endisadelimtheory
 %
 \isatagtheory
-\isacommand{theory}\isamarkupfalse%
+\isakeywordONE{theory}\isamarkupfalse%
 \ Error{\isacharunderscore}{\kern0pt}Monad{\isacharunderscore}{\kern0pt}Add\isanewline
-\isakeyword{imports}\isanewline
+\isakeywordTWO{imports}\isanewline
 \ \ {\isachardoublequoteopen}Certification{\isacharunderscore}{\kern0pt}Monads{\isachardot}{\kern0pt}Check{\isacharunderscore}{\kern0pt}Monad{\isachardoublequoteclose}\isanewline
 \ \ {\isachardoublequoteopen}Show{\isachardot}{\kern0pt}Show{\isacharunderscore}{\kern0pt}Instances{\isachardoublequoteclose}\isanewline
-\isakeyword{begin}%
+\isakeywordTWO{begin}%
 \endisatagtheory
 {\isafoldtheory}%
 %
@@ -21,13 +21,13 @@
 %
 \endisadelimtheory
 \ \ \ \ \isanewline
-\ \ \isacommand{abbreviation}\isamarkupfalse%
+\ \ \isakeywordONE{abbreviation}\isamarkupfalse%
 \ {\isachardoublequoteopen}assert{\isacharunderscore}{\kern0pt}opt\ {\isasymPhi}\ {\isasymequiv}\ if\ {\isasymPhi}\ then\ Some\ {\isacharparenleft}{\kern0pt}{\isacharparenright}{\kern0pt}\ else\ None{\isachardoublequoteclose}\ \ \isanewline
 \isanewline
-\ \ \isacommand{definition}\isamarkupfalse%
+\ \ \isakeywordONE{definition}\isamarkupfalse%
 \ {\isachardoublequoteopen}lift{\isacharunderscore}{\kern0pt}opt\ m\ e\ {\isasymequiv}\ case\ m\ of\ Some\ x\ {\isasymRightarrow}\ Error{\isacharunderscore}{\kern0pt}Monad{\isachardot}{\kern0pt}return\ x\ {\isacharbar}{\kern0pt}\ None\ {\isasymRightarrow}\ Error{\isacharunderscore}{\kern0pt}Monad{\isachardot}{\kern0pt}error\ e{\isachardoublequoteclose}\isanewline
 \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ lift{\isacharunderscore}{\kern0pt}opt{\isacharunderscore}{\kern0pt}simps{\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ \isanewline
 \ \ \ \ {\isachardoublequoteopen}lift{\isacharunderscore}{\kern0pt}opt\ None\ e\ {\isacharequal}{\kern0pt}\ error\ e{\isachardoublequoteclose}\isanewline
 \ \ \ \ {\isachardoublequoteopen}lift{\isacharunderscore}{\kern0pt}opt\ {\isacharparenleft}{\kern0pt}Some\ v{\isacharparenright}{\kern0pt}\ e\ {\isacharequal}{\kern0pt}\ return\ v{\isachardoublequoteclose}\isanewline
@@ -37,7 +37,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}auto\ simp{\isacharcolon}{\kern0pt}\ lift{\isacharunderscore}{\kern0pt}opt{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}%
 \endisatagproof
 {\isafoldproof}%
@@ -48,14 +48,14 @@
 \endisadelimproof
 \ \ \isanewline
 \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ reflcl{\isacharunderscore}{\kern0pt}image{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}R\isactrlsup {\isacharequal}{\kern0pt}{\isacharbackquote}{\kern0pt}{\isacharbackquote}{\kern0pt}S\ {\isacharequal}{\kern0pt}\ S{\isasymunion}R{\isacharbackquote}{\kern0pt}{\isacharbackquote}{\kern0pt}S{\isachardoublequoteclose}%
 \isadelimproof
 \ %
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ blast%
 \endisatagproof
 {\isafoldproof}%
@@ -65,10 +65,10 @@
 \endisadelimproof
 \ \isanewline
 \ \ \ \ \isanewline
-\ \ \isacommand{named{\isacharunderscore}{\kern0pt}theorems}\isamarkupfalse%
+\ \ \isakeywordONE{named{\isacharunderscore}{\kern0pt}theorems}\isamarkupfalse%
 \ return{\isacharunderscore}{\kern0pt}iff\isanewline
 \ \ \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ bind{\isacharunderscore}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}Error{\isacharunderscore}{\kern0pt}Monad{\isachardot}{\kern0pt}bind\ m\ f\ {\isacharequal}{\kern0pt}\ Inr\ y\ {\isasymlongleftrightarrow}\ {\isacharparenleft}{\kern0pt}{\isasymexists}x{\isachardot}{\kern0pt}\ m\ {\isacharequal}{\kern0pt}\ Inr\ x\ {\isasymand}\ f\ x\ {\isacharequal}{\kern0pt}\ Inr\ y{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
 %
 \isadelimproof
@@ -76,7 +76,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ auto%
 \endisatagproof
 {\isafoldproof}%
@@ -86,7 +86,7 @@
 %
 \endisadelimproof
 \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ lift{\isacharunderscore}{\kern0pt}opt{\isacharunderscore}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}lift{\isacharunderscore}{\kern0pt}opt\ m\ e\ {\isacharequal}{\kern0pt}\ Inr\ x\ {\isasymlongleftrightarrow}\ m{\isacharequal}{\kern0pt}Some\ x{\isachardoublequoteclose}\isanewline
 %
 \isadelimproof
@@ -94,8 +94,8 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{unfolding}\isamarkupfalse%
-\ lift{\isacharunderscore}{\kern0pt}opt{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\isakeywordONE{unfolding}\isamarkupfalse%
+\ lift{\isacharunderscore}{\kern0pt}opt{\isacharunderscore}{\kern0pt}def\ \isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}auto\ split{\isacharcolon}{\kern0pt}\ option{\isachardot}{\kern0pt}split{\isacharparenright}{\kern0pt}%
 \endisatagproof
 {\isafoldproof}%
@@ -105,7 +105,7 @@
 %
 \endisadelimproof
 \ \ \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ check{\isacharunderscore}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}check\ {\isasymPhi}\ e\ {\isacharequal}{\kern0pt}\ Inr\ uu\ {\isasymlongleftrightarrow}\ {\isasymPhi}{\isachardoublequoteclose}\ \ \ \ \isanewline
 %
 \isadelimproof
@@ -113,7 +113,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}auto\ simp{\isacharcolon}{\kern0pt}\ check{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}%
 \endisatagproof
 {\isafoldproof}%
@@ -124,7 +124,7 @@
 \endisadelimproof
 \ \ \isanewline
 \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ check{\isacharunderscore}{\kern0pt}simps{\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ \ \isanewline
 \ \ \ \ {\isachardoublequoteopen}check\ True\ e\ {\isacharequal}{\kern0pt}\ succeed{\isachardoublequoteclose}\isanewline
 \ \ \ \ {\isachardoublequoteopen}check\ False\ e\ {\isacharequal}{\kern0pt}\ error\ e{\isachardoublequoteclose}\isanewline
@@ -134,7 +134,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}auto\ simp{\isacharcolon}{\kern0pt}\ check{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}%
 \endisatagproof
 {\isafoldproof}%
@@ -144,14 +144,14 @@
 %
 \endisadelimproof
 \ \ \ \ \ \ \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ Let{\isacharunderscore}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}return{\isacharunderscore}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharparenleft}{\kern0pt}let\ x{\isacharequal}{\kern0pt}v\ in\ f\ x{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ Inr\ w\ {\isasymlongleftrightarrow}\ f\ v\ {\isacharequal}{\kern0pt}\ Inr\ w{\isachardoublequoteclose}%
 \isadelimproof
 \ %
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ simp%
 \endisatagproof
 {\isafoldproof}%
@@ -162,13 +162,13 @@
 \isanewline
 \isanewline
 \ \ \isanewline
-\ \ \isacommand{abbreviation}\isamarkupfalse%
-\ ERR\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}shows\ {\isasymRightarrow}\ {\isacharparenleft}{\kern0pt}unit\ {\isasymRightarrow}\ shows{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\ \isakeyword{where}\ {\isachardoublequoteopen}ERR\ s\ {\isasymequiv}\ {\isasymlambda}{\isacharunderscore}{\kern0pt}{\isachardot}{\kern0pt}\ s{\isachardoublequoteclose}\isanewline
-\ \ \isacommand{abbreviation}\isamarkupfalse%
-\ ERRS\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}string\ {\isasymRightarrow}\ {\isacharparenleft}{\kern0pt}unit\ {\isasymRightarrow}\ shows{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\ \isakeyword{where}\ {\isachardoublequoteopen}ERRS\ s\ {\isasymequiv}\ ERR\ {\isacharparenleft}{\kern0pt}shows\ s{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{abbreviation}\isamarkupfalse%
+\ ERR\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}shows\ {\isasymRightarrow}\ {\isacharparenleft}{\kern0pt}unit\ {\isasymRightarrow}\ shows{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\ \isakeywordTWO{where}\ {\isachardoublequoteopen}ERR\ s\ {\isasymequiv}\ {\isasymlambda}{\isacharunderscore}{\kern0pt}{\isachardot}{\kern0pt}\ s{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{abbreviation}\isamarkupfalse%
+\ ERRS\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}string\ {\isasymRightarrow}\ {\isacharparenleft}{\kern0pt}unit\ {\isasymRightarrow}\ shows{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\ \isakeywordTWO{where}\ {\isachardoublequoteopen}ERRS\ s\ {\isasymequiv}\ ERR\ {\isacharparenleft}{\kern0pt}shows\ s{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
 \ \ \isanewline
 \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ error{\isacharunderscore}{\kern0pt}monad{\isacharunderscore}{\kern0pt}bind{\isacharunderscore}{\kern0pt}split{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}P\ {\isacharparenleft}{\kern0pt}bind\ m\ f{\isacharparenright}{\kern0pt}\ {\isasymlongleftrightarrow}\ {\isacharparenleft}{\kern0pt}{\isasymforall}v{\isachardot}{\kern0pt}\ m\ {\isacharequal}{\kern0pt}\ Inl\ v\ {\isasymlongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}Inl\ v{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isasymand}\ {\isacharparenleft}{\kern0pt}{\isasymforall}v{\isachardot}{\kern0pt}\ m\ {\isacharequal}{\kern0pt}\ Inr\ v\ {\isasymlongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}f\ v{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
 %
 \isadelimproof
@@ -176,7 +176,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}cases\ m{\isacharparenright}{\kern0pt}\ auto%
 \endisatagproof
 {\isafoldproof}%
@@ -186,7 +186,7 @@
 %
 \endisadelimproof
 \ \ \isanewline
-\ \ \isacommand{lemma}\isamarkupfalse%
+\ \ \isakeywordONE{lemma}\isamarkupfalse%
 \ error{\isacharunderscore}{\kern0pt}monad{\isacharunderscore}{\kern0pt}bind{\isacharunderscore}{\kern0pt}split{\isacharunderscore}{\kern0pt}asm{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}P\ {\isacharparenleft}{\kern0pt}bind\ m\ f{\isacharparenright}{\kern0pt}\ {\isasymlongleftrightarrow}\ {\isasymnot}\ {\isacharparenleft}{\kern0pt}{\isasymexists}x{\isachardot}{\kern0pt}\ m\ {\isacharequal}{\kern0pt}\ Inl\ x\ {\isasymand}\ {\isasymnot}\ P\ {\isacharparenleft}{\kern0pt}Inl\ x{\isacharparenright}{\kern0pt}\ {\isasymor}\ {\isacharparenleft}{\kern0pt}{\isasymexists}x{\isachardot}{\kern0pt}\ m\ {\isacharequal}{\kern0pt}\ Inr\ x\ {\isasymand}\ {\isasymnot}\ P\ {\isacharparenleft}{\kern0pt}f\ x{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
 %
 \isadelimproof
@@ -194,7 +194,7 @@
 \endisadelimproof
 %
 \isatagproof
-\isacommand{by}\isamarkupfalse%
+\isakeywordONE{by}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}cases\ m{\isacharparenright}{\kern0pt}\ auto%
 \endisatagproof
 {\isafoldproof}%
@@ -204,7 +204,7 @@
 %
 \endisadelimproof
 \ \ \isanewline
-\ \ \isacommand{lemmas}\isamarkupfalse%
+\ \ \isakeywordONE{lemmas}\isamarkupfalse%
 \ error{\isacharunderscore}{\kern0pt}monad{\isacharunderscore}{\kern0pt}bind{\isacharunderscore}{\kern0pt}splits\ {\isacharequal}{\kern0pt}error{\isacharunderscore}{\kern0pt}monad{\isacharunderscore}{\kern0pt}bind{\isacharunderscore}{\kern0pt}split\ error{\isacharunderscore}{\kern0pt}monad{\isacharunderscore}{\kern0pt}bind{\isacharunderscore}{\kern0pt}split{\isacharunderscore}{\kern0pt}asm\isanewline
 \ \ \isanewline
 %
@@ -214,7 +214,7 @@
 \endisadelimtheory
 %
 \isatagtheory
-\isacommand{end}\isamarkupfalse%
+\isakeywordTWO{end}\isamarkupfalse%
 %
 \endisatagtheory
 {\isafoldtheory}%
@@ -225,7 +225,7 @@
 %
 \end{isabellebody}%
 \endinput
-%:%file=Error_Monad_Add.tex%:%
+%:%file=~/work/temp_planning_certification/temporal-planning-certification/lib/temporal-pddl-semantics/Error_Monad_Add.thy%:%
 %:%10=1%:%
 %:%11=1%:%
 %:%12=2%:%
